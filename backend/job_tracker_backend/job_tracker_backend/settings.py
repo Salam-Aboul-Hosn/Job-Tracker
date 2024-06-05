@@ -49,7 +49,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'job_tracker_backend.urls'
+ROOT_URLCONF = 'job_tracker_backend.config.urls'
 
 TEMPLATES = [
     {
@@ -67,7 +67,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'job_tracker_backend.wsgi.application'
+WSGI_APPLICATION = 'job_tracker_backend.config.wsgi.application'
 
 
 # Database
