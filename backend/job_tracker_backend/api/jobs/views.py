@@ -15,7 +15,8 @@ class JobView(View):
                 'location': record.location,
                 'level': record.level} for record in records]
         return JsonResponse(data, safe=False)
-    
+
+
     def post(self, request):
         try:
             data = json.loads(request.body)
@@ -44,7 +45,25 @@ class JobView(View):
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
         
-    def patch(self, request, *args, **kwargs):
+    
+
+class JobWithIdView(View):
+    def get(self, request, pk):  
+        try:
+            job = Job.objects.get(pk=pk)
+            data = {
+                'position': job.position,
+                'company': job.company,
+                'date_applied': job.date_applied,
+                'compensation': job.compensation,
+                'location': job.location,
+                'level': job.level
+            }
+            return JsonResponse(data, status=200)
+        except Job.DoesNotExist:
+            return JsonResponse({'error': 'Job not found'}, status=404)
+        
+    def patch(self, request, pk, *args, **kwargs):  # Ensure 'pk' is included here
         try:
             data = json.loads(request.body)
             position = data.get('position')
@@ -54,10 +73,10 @@ class JobView(View):
             location = data.get('location')
             level = data.get('level')
 
-            job_id = kwargs.get('pk')  # assuming the URL pattern includes the primary key (pk)
+            job_id = pk  # Use 'pk' directly from the method parameters
             if not job_id:
                 return JsonResponse({'error': 'Job ID not provided'}, status=400)
-
+            
             job = Job.objects.get(pk=job_id)
             if position:
                 job.position = position
@@ -82,9 +101,9 @@ class JobView(View):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request, pk, *args, **kwargs):  # Ensure 'pk' is included here
         try:
-            job_id = kwargs.get('pk')  # assuming the URL pattern includes the primary key (pk)
+            job_id = pk  # Use 'pk' directly from the method parameters
             if not job_id:
                 return JsonResponse({'error': 'Job ID not provided'}, status=400)
 
