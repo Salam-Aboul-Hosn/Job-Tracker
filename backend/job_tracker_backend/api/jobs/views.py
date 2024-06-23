@@ -1,12 +1,11 @@
 from django.forms import ValidationError
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.views import View
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Job
 from django.contrib.auth.models import User
 from django.core.validators import validate_email
+from django.contrib.auth import authenticate, login
 
 class JobView(View):
     def get(self, request):
@@ -124,7 +123,7 @@ def register(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            user_name = data.get('user_name')
+            username = data.get('username')
             email = data.get('email')
             password = data.get('password')
             try:
@@ -132,9 +131,26 @@ def register(request):
             except ValidationError as e:
                 return JsonResponse({'error': str(e)}, status=400)
             else:
-                user = User.objects.create_user(user_name, email, password)
+                user = User.objects.create_user(username, email, password)
                 user.save()
            
             return JsonResponse({'message': 'User created successfully.'}, status=200)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+        
+#authenticates users
+def login_user(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            username = data.get('username') 
+            password = data.get('password')
+            user = authenticate(request=request, username=username, password=password)
+            if user:
+                login(request, user)
+                return JsonResponse({'message': 'User logged in successfully.'}, status=200)
+            else:
+                return JsonResponse({'message': 'Unable to authenticate user'}, status=401)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+ 
