@@ -125,7 +125,6 @@ def register(request):
         try:
             data = json.loads(request.body)
             user_name = data.get('user_name')
-            # MAKE SURE THE EMAIL IS VALID 
             email = data.get('email')
             password = data.get('password')
             try:
