@@ -1,9 +1,12 @@
+from django.forms import ValidationError
 from django.http import HttpResponse, JsonResponse
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Job
+from django.contrib.auth.models import User
+from django.core.validators import validate_email
 
 class JobView(View):
     def get(self, request):
@@ -113,5 +116,26 @@ class JobWithIdView(View):
             return JsonResponse({'message': 'Record deleted successfully'}, status=200)
         except Job.DoesNotExist:
             return JsonResponse({'error': 'Job not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+# Register users
+def register(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user_name = data.get('user_name')
+            # MAKE SURE THE EMAIL IS VALID 
+            email = data.get('email')
+            password = data.get('password')
+            try:
+                validate_email(email)
+            except ValidationError as e:
+                return JsonResponse({'error': str(e)}, status=400)
+            else:
+                user = User.objects.create_user(user_name, email, password)
+                user.save()
+           
+            return JsonResponse({'message': 'User created successfully.'}, status=200)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
