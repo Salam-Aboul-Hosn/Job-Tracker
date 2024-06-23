@@ -65,7 +65,7 @@ class JobWithIdView(View):
         except Job.DoesNotExist:
             return JsonResponse({'error': 'Job not found'}, status=404)
         
-    def patch(self, request, pk, *args, **kwargs):  # Ensure 'pk' is included here
+    def patch(self, request, pk):
         try:
             data = json.loads(request.body)
             position = data.get('position')
@@ -75,7 +75,7 @@ class JobWithIdView(View):
             location = data.get('location')
             level = data.get('level')
 
-            job_id = pk  # Use 'pk' directly from the method parameters
+            job_id = pk 
             if not job_id:
                 return JsonResponse({'error': 'Job ID not provided'}, status=400)
             
@@ -145,6 +145,10 @@ def login_user(request):
             data = json.loads(request.body)
             username = data.get('username') 
             password = data.get('password')
+
+            if username is None or password is None:
+                 return JsonResponse({"detail":"Please provide username and password"}, status=400)
+            
             user = authenticate(request=request, username=username, password=password)
             if user:
                 login(request, user)
@@ -153,4 +157,6 @@ def login_user(request):
                 return JsonResponse({'message': 'Unable to authenticate user'}, status=401)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'message': 'Not a post request'}, status=401)
  
