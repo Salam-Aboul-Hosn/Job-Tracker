@@ -6,6 +6,8 @@ from .models import Job
 from django.contrib.auth.models import User
 from django.core.validators import validate_email
 from django.contrib.auth import authenticate, login
+from django.middleware.csrf import get_token
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 
 class JobView(View):
     def get(self, request):
@@ -139,6 +141,7 @@ def register(request):
             return JsonResponse({'error': str(e)}, status=500)
         
 #authenticates users
+@csrf_protect
 def login_user(request):
     if request.method == 'POST':
         try:
@@ -160,3 +163,7 @@ def login_user(request):
     else:
         return JsonResponse({'message': 'Not a post request'}, status=401)
  
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    csrf_token = get_token(request)
+    return JsonResponse({'csrfToken': csrf_token})
