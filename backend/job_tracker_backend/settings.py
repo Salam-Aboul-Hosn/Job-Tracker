@@ -27,6 +27,16 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Ensure HttpOnly for session cookies
+SESSION_COOKIE_HTTPONLY = True
+
+# Ensure Secure flag for session cookies (requires HTTPS)
+SESSION_COOKIE_SECURE = True
+
+# Ensure HttpOnly and Secure flags for CSRF cookies
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = True
+
 
 # Application definition
 

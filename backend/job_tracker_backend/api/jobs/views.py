@@ -1,5 +1,6 @@
 from django.forms import ValidationError
 from django.http import JsonResponse
+from django.shortcuts import render
 from django.views import View
 import json
 from .models import Job
@@ -120,39 +121,63 @@ class JobWithIdView(View):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     
-# Register users
+# def register(request):
+#     if request.method == 'POST':
+#         try:
+#             data = json.loads(request.body)
+#             username = data.get('username')
+#             email = data.get('email')
+#             password = data.get('password')
+#             try:
+#                 validate_email(email)
+#             except ValidationError as e:
+#                 return JsonResponse({'error': str(e)}, status=400)
+            
+#             user = User.objects.create_user(username, email, password)
+#             user.save()
+           
+#             return JsonResponse({'message': 'User created successfully.'}, status=200)
+#         except Exception as e:
+#             return JsonResponse({'error': str(e)}, status=500)
+#     else:
+#         return render(request, 'register.html')
+
 def register(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
-            username = data.get('username')
-            email = data.get('email')
-            password = data.get('password')
+            username = request.POST.get('username')
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+
             try:
                 validate_email(email)
             except ValidationError as e:
                 return JsonResponse({'error': str(e)}, status=400)
-            else:
-                user = User.objects.create_user(username, email, password)
-                user.save()
+            
+             # Check if the email is already used
+            if User.objects.filter(email=email).exists():
+                return JsonResponse({'error': 'Email address already in use.'}, status=400)
+            user = User.objects.create_user(username, email, password)
+
+          
+            user.save()
            
             return JsonResponse({'message': 'User created successfully.'}, status=200)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
-        
-#authenticates users
-@csrf_protect
+    else:
+        return render(request, 'register.html')
+
 def login_user(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
-            username = data.get('username') 
-            password = data.get('password')
+            username = request.POST.get('username')
+            password = request.POST.get('password')
 
             if username is None or password is None:
-                 return JsonResponse({"detail":"Please provide username and password"}, status=400)
-            
-            user = authenticate(request=request, username=username, password=password)
+                return JsonResponse({"detail": "Please provide username and password"}, status=400)
+
+            user = authenticate(request, username=username, password=password)
             if user:
                 login(request, user)
                 return JsonResponse({'message': 'User logged in successfully.'}, status=200)
@@ -161,9 +186,9 @@ def login_user(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     else:
-        return JsonResponse({'message': 'Not a post request'}, status=401)
- 
-@ensure_csrf_cookie
+        return render(request, 'login.html')
+
 def get_csrf_token(request):
+    from django.middleware.csrf import get_token
     csrf_token = get_token(request)
     return JsonResponse({'csrfToken': csrf_token})
