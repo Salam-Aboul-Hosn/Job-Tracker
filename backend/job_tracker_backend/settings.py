@@ -27,19 +27,32 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-# Ensure HttpOnly for session cookies
-SESSION_COOKIE_HTTPONLY = True
-
-# Ensure Secure flag for session cookies (requires HTTPS)
-SESSION_COOKIE_SECURE = True
-
-# Ensure HttpOnly and Secure flags for CSRF cookies
-CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = ['http://localhost:5173']
 
 
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:5173",
+#     # "https://your-production-domain.com",
+# ]
+# CORS_ALLOW_CREDENTIALS = True
+# CSRF_COOKIE_NAME = "csrftoken"
 # Application definition
 
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# settings.py
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'job_tracker_backend' / 'api' / 'static']
+
+# Add this line
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+
+
+CSRF_COOKIE_NAME = 'csrftoken'
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
